@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>🌍 Borsa delle Nazionalità Italiane</title>
+
+<style>
+
+:root{
+  --primary:#ff6b35;
+  --secondary:#2ec4b6;
+  --bg:#f7f9fc;
+  --card:#ffffff;
+  --dark:#1f2937;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#f5f7ff,#fff8ee);
+  color:var(--dark);
+}
+
+header{
+  text-align:center;
+  padding:30px;
+}
+
+header h1{
+  font-size:3rem;
+}
+
+header p{
+  font-size:1.2rem;
+  color:#666;
+}
+
+.container{
+  width:95%;
+  max-width:1400px;
+  margin:auto;
+}
+
+.search-section{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+  margin-bottom:25px;
+}
+
+.search-section input{
+  width:100%;
+  padding:18px;
+  border:none;
+  border-radius:15px;
+  font-size:1.1rem;
+  box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.filters{
+  margin-top:20px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.filters button{
+  border:none;
+  padding:10px 15px;
+  border-radius:30px;
+  cursor:pointer;
+  background:#fff;
+  box-shadow:0 3px 8px rgba(0,0,0,0.1);
+}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:white;
+  border-radius:20px;
+  overflow:hidden;
+  padding:20px;
+  text-align:center;
+  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+  transition:0.3s;
+}
+
+.card:hover{
+  transform:translateY(-5px);
+}
+
+.flag{
+  font-size:4rem;
+}
+
+.country{
+  font-size:1.5rem;
+  font-weight:bold;
+  margin:10px 0;
+}
+
+.stat-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:15px;
+  margin-bottom:25px;
+}
+
+.stat{
+  background:white;
+  border-radius:20px;
+  padding:20px;
+  text-align:center;
+  box-shadow:0 5px 12px rgba(0,0,0,0.1);
+}
+
+.daily{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  margin-bottom:25px;
+  box-shadow:0 5px 12px rgba(0,0,0,0.1);
+}
+
+.quiz{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  margin-top:30px;
+}
+
+.quiz button{
+  width:100%;
+  margin-top:10px;
+  padding:12px;
+  border:none;
+  cursor:pointer;
+  border-radius:12px;
+}
+
+.correct{
+  background:#4caf50;
+  color:white;
+}
+
+.wrong{
+  background:#e53935;
+  color:white;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🌍 Borsa delle Nazionalità</h1>
+<p>Impara paesi e nazionalità italiane!</p>
+</header>
+
+<div class="container">
+
+<div class="stat-grid">
+
+<div class="stat">
+<h2 id="countriesCount"></h2>
+<p>📚 Paesi</p>
+</div>
+
+<div class="stat">
+<h2 id="quizPoints">0</h2>
+<p>🏆 Quizpunkte</p>
+</div>
+
+<div class="stat">
+<h2 id="learned">0</h2>
+<p>✅ Gelernte Karten</p>
+</div>
+
+</div>
+
+<div class="daily">
+<h2>⭐ Carta del giorno</h2>
+<div id="dailyCard"></div>
+</div>
+
+<div class="search-section">
+
+<h2>🔍 Cerca un paese o una nazionalità</h2>
+<p>Cerca in italiano, tedesco o inglese.</p>
+
+<br>
+
+<input
+id="search"
+placeholder="Schweiz, Switzerland, Svizzera, Swiss ..."
+>
+
+<div class="filters">
+
+<button onclick="filterContinent('all')">🌍 Alle</button>
+<button onclick="filterContinent('Europa')">🇪🇺 Europa</button>
+<button onclick="filterContinent('Africa')">🌍 Afrika</button>
+<button onclick="filterContinent('Asia')">🌏 Asien</button>
+<button onclick="filterContinent('Nordamerika')">🌎 Nordamerika</button>
+<button onclick="filterContinent('Südamerika')">🌎 Südamerika</button>
+
+</div>
+
+</div>
+
+<div class="cards" id="cards"></div>
+
+<div class="quiz">
+
+<h2>🎮 Quiz</h2>
+
+<br>
+
+<button onclick="newQuiz()">Quiz starten</button>
+
+<div id="quizArea"></div>
+
+</div>
+
+</div>
+
+<script>
+
+const countries=[
+
+{
+it:"Svizzera",
+de:"Schweiz",
+en:"Switzerland",
+male:"svizzero",
+female:"svizzera",
+flag:"🇨🇭",
+continent:"Europa"
+},
+{
+it:"Germania",
+de:"Deutschland",
+en:"Germany",
+male:"tedesco",
+female:"tedesca",
+flag:"🇩🇪",
+continent:"Europa"
+},
+{
+it:"Italia",
+de:"Italien",
+en:"Italy",
+male:"italiano",
+female:"italiana",
+flag:"🇮🇹",
+continent:"Europa"
+},
+{
+it:"Francia",
+de:"Frankreich",
+en:"France",
+male:"francese",
+female:"francese",
+flag:"🇫🇷",
+continent:"Europa"
+},
+{
+it:"Spagna",
+de:"Spanien",
+en:"Spain",
+male:"spagnolo",
+female:"spagnola",
+flag:"🇪🇸",
+continent:"Europa"
+},
+{
+it:"Giappone",
+de:"Japan",
+en:"Japan",
+male:"giapponese",
+female:"giapponese",
+flag:"🇯🇵",
+continent:"Asia"
+},
+{
+it:"Brasile",
+de:"Brasilien",
+en:"Brazil",
+male:"brasiliano",
+female:"brasiliana",
+flag:"🇧🇷",
+continent:"Südamerika"
+},
+{
+it:"Argentina",
+de:"Argentinien",
+en:"Argentina",
+male:"argentino",
+female:"argentina",
+flag:"🇦🇷",
+continent:"Südamerika"
+},
+{
+it:"Egitto",
+de:"Ägypten",
+en:"Egypt",
+male:"egiziano",
+female:"egiziana",
+flag:"🇪🇬",
+continent:"Africa"
+},
+{
+it:"Nigeria",
+de:"Nigeria",
+en:"Nigeria",
+male:"nigeriano",
+female:"nigeriana",
+flag:"🇳🇬",
+continent:"Africa"
+},
+{
+it:"India",
+de:"Indien",
+en:"India",
+male:"indiano",
+female:"indiana",
+flag:"🇮🇳",
+continent:"Asia"
+},
+{
+it:"Cina",
+de:"China",
+en:"China",
+male:"cinese",
+female:"cinese",
+flag:"🇨🇳",
+continent:"Asia"
+}
+
+];
+
+document.getElementById("countriesCount").innerText=countries.length;
+
+const daily=
+countries[Math.floor(Math.random()*countries.length)];
+
+document.getElementById("dailyCard").innerHTML=
+`
+<h3>${daily.flag} ${daily.it}</h3>
+<p>👦 ${daily.male}</p>
+<p>👧 ${daily.female}</p>
+`;
+
+function renderCards(data){
+
+const cards=document.getElementById("cards");
+
+cards.innerHTML="";
+
+data.forEach(c=>{
+
+cards.innerHTML+=`
+<div class="card">
+
+<div class="flag">${c.flag}</div>
+
+<div class="country">${c.it}</div>
+
+<p>👦 ${c.male}</p>
+<p>👧 ${c.female}</p>
+
+<br>
+
+<p>${c.continent}</p>
+
+</div>
+`;
+
+});
+
+}
+
+renderCards(countries);
+
+document.getElementById("search")
+.addEventListener("input",function(){
+
+const value=this.value.toLowerCase();
+
+const filtered=countries.filter(c=>
+
+c.it.toLowerCase().includes(value) ||
+c.de.toLowerCase().includes(value) ||
+c.en.toLowerCase().includes(value) ||
+c.male.toLowerCase().includes(value) ||
+c.female.toLowerCase().includes(value)
+
+);
+
+renderCards(filtered);
+
+});
+
+function filterContinent(continent){
+
+if(continent==="all"){
+renderCards(countries);
+return;
+}
+
+renderCards(
+countries.filter(
+c=>c.continent===continent
+)
+);
+
+}
+
+let score=0;
+let currentQuestion;
+
+function newQuiz(){
+
+currentQuestion=
+countries[Math.floor(Math.random()*countries.length)];
+
+let correct=currentQuestion.male;
+
+let options=[correct];
+
+while(options.length<4){
+
+let random=
+countries[Math.floor(Math.random()*countries.length)].male;
+
+if(!options.includes(random))
+options.push(random);
+
+}
+
+options.sort(()=>Math.random()-0.5);
+
+document.getElementById("quizArea").innerHTML=
+
+`
+<br>
+<h3>
+Come si chiama una persona della
+${currentQuestion.it}?
+</h3>
+
+${options.map(o=>
+`
+<button onclick="checkAnswer('${o}')">
+${o}
+</button>
+`
+).join("")}
+
+`;
+
+}
+
+function checkAnswer(answer){
+
+if(answer===currentQuestion.male){
+
+score++;
+
+document.getElementById("quizPoints").innerText=score;
+
+alert("✅ Bravo!");
+
+}else{
+
+alert("❌ Ritenta!");
+
+}
+
+newQuiz();
+
+}
+
+</script>
+
+</body>
+</html>
